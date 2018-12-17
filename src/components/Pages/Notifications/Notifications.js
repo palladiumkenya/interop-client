@@ -1,97 +1,111 @@
-import React, { Component } from "react";
-import { Header, Grid, Divider, Input, Checkbox } from "semantic-ui-react";
-import { MainContent } from "../../shared/Content/MainContent";
-import { LogListing } from "./LogListing";
+import React, { Component } from 'react'
+import { Header, Grid, Input, Checkbox } from 'semantic-ui-react'
+import { MainContent } from '../../shared/Content/MainContent'
+import { LogListing } from './LogListing'
 import {
   getLogs,
   getToggledLogs,
   getSearchedLogs,
-  getQueuedMessage
-} from "../../../utils/data.utils";
-import { PaginationMenu } from "./PaginationMenu";
-import { CircularLoader } from "../../shared/Loader/CircularLoader";
+  getQueuedMessage,
+  getLogsCount
+} from '../../../utils/data.utils'
+import { PaginationMenu } from './PaginationMenu'
+import { CircularLoader } from '../../shared/Loader/CircularLoader'
 
 export class Notifications extends Component {
   state = {
     logs: null,
     pages: null,
-    activeItem: "1",
+    activeItem: '1',
     toggleErrors: false,
     time: new Date()
-  };
-
-  componentWillMount() {
-    getLogs(parseInt(this.state.activeItem, 10) - 1)
-      .then(logs => this.getAllLogsAndMsgs(logs.result))
-      .then(newLogs => this.setState({ logs: newLogs, pages: newLogs.pages }))
-      .catch(console.log);
   }
 
-  handleItemClick = (e, { name }) => {
-    !this.state.toggleErrors
-      ? getToggledLogs("ERROR", parseInt(name, 10) - 1)
-          .then(logs =>
-            this.setState({
-              logs: logs.result,
-              pages: logs.pages,
-              activeItem: name
-            })
-          )
-          .catch(console.log)
-      : getLogs(parseInt(name, 10) - 1)
-          .then(logs =>
-            this.setState({
-              logs: logs.result,
-              pages: logs.pages,
-              activeItem: name
-            })
-          )
-          .catch(console.log);
-  };
+  async componentDidMount() {
+    const logs = await getLogs(parseInt(this.state.activeItem, 10) - 1)
+    const newLogs = await this.getAllLogsAndMsgs(logs.result)
+    this.setState({ logs: newLogs, pages: logs.pages })
 
-  handleToggle = (e, { value }) => {
-    this.setState({ toggleErrors: !this.state.toggleErrors, activeItem: "1" });
-    const currentPage = 0;
-    value
-      ? getToggledLogs("ERROR", currentPage)
-          .then(logs => this.setState({ logs: logs.result, pages: logs.pages }))
-          .catch(console.log)
-      : getLogs(currentPage)
-          .then(logs => this.setState({ logs: logs.result, pages: logs.pages }))
-          .catch(console.log);
-  };
+    setInterval(async () => {
+      try {
+        await this.checkLogUpdates()
+      } catch (error) {
+        console.error(error)
+      }
+    }, 5000)
+  }
 
-  handleInputChange = evt => {
-    if (evt.target.value) {
-      if (evt.target.value.length < 3) return;
+  checkLogUpdates = async () => {
+    const { data } = await getLogsCount()
+    if (data.queued !== this.state.queued || data.sent !== this.state.sent) {
+      const logs = await getLogs(parseInt(this.state.activeItem, 10) - 1)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
 
-      getSearchedLogs(evt.target.value, 0)
-        .then(logs => this.setState({ logs: logs.result, pages: logs.pages }))
-        .catch(console.log);
-    } else {
-      getLogs(parseInt(this.state.activeItem, 10) - 1)
-        .then(logs => this.setState({ logs: logs.result, pages: logs.pages }))
-        .catch(console.log);
+      this.setState({
+        logs: newLogs,
+        pages: logs.pages,
+        logCount: logs.count,
+        sent: data.sent,
+        queued: data.queued
+      })
     }
-  };
+  }
+
+  handleItemClick = async (e, { name }) => {
+    if (this.state.toggleErrors) {
+      const logs = await getToggledLogs('WARNING', parseInt(name, 10) - 1)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
+      this.setState({ logs: newLogs, pages: logs.pages })
+    } else {
+      const logs = await getLogs(parseInt(name, 10) - 1)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
+      this.setState({ logs: newLogs, pages: logs.pages })
+    }
+  }
+
+  handleToggle = async (e, { checked }) => {
+    this.setState({ toggleErrors: !this.state.toggleErrors, activeItem: '1' })
+    const currentPage = 0
+    if (checked) {
+      const logs = await getToggledLogs('WARNING', currentPage)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
+      this.setState({ logs: newLogs, pages: logs.pages })
+    } else {
+      const logs = await getLogs(currentPage)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
+      this.setState({ logs: newLogs, pages: logs.pages })
+    }
+  }
+
+  handleInputChange = async evt => {
+    if (evt.target.value) {
+      if (evt.target.value.length < 3) return
+      const logs = await getSearchedLogs(evt.target.value, 0)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
+      this.setState({ logs: newLogs, pages: logs.pages })
+    } else {
+      const logs = await getLogs(parseInt(this.state.activeItem, 10) - 1)
+      const newLogs = await this.getAllLogsAndMsgs(logs.result)
+      this.setState({ logs: newLogs, pages: logs.pages })
+    }
+  }
 
   getAllLogsAndMsgs = async logs => {
-    let newLogs = [];
+    let newLogs = []
     for (let log of logs) {
-      const json = await getQueuedMessage(log.QueueId);
-      let newLog = { ...log, json };
-      newLogs.push(newLog);
+      const json = await getQueuedMessage(log.QueueId)
+      let newLog = { ...log, json }
+      newLogs.push(newLog)
     }
-    return newLogs;
-  };
+    return newLogs
+  }
 
   render() {
     const logArea = this.state.logs ? (
       <LogListing logs={this.state.logs} updateDate={this.state.time} />
     ) : (
       <CircularLoader />
-    );
-
+    )
     return (
       <div>
         <Header as="h2" className="sub-header-text">
@@ -99,18 +113,13 @@ export class Notifications extends Component {
         </Header>
         <MainContent>
           <Grid columns={3}>
-            <Grid.Column width={16}>
-              <Header as="h3" className="stats-header">
-                IL Notifications:
-              </Header>
-              <Divider />
-            </Grid.Column>
+            <Grid.Column width={16} />
             <Grid.Column width={16}>
               <Checkbox
                 className="notifications-toggle-errors"
                 toggle
                 checked={this.state.toggleErrors}
-                label="toggle errors"
+                label="toggle queued"
                 onChange={this.handleToggle}
               />
               <Input
@@ -131,6 +140,6 @@ export class Notifications extends Component {
           </Grid>
         </MainContent>
       </div>
-    );
+    )
   }
 }
