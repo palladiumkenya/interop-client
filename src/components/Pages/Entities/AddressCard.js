@@ -18,6 +18,8 @@ export const AddressCard = props => {
   const protocolDescriptions = {
     http:
       "This should be a POST endpoint on the participating system. The IL will be doing an HTTP POST to this address.",
+    https:
+      "This should be a secure POST endpoint on the participating system. The IL will be doing an HTTPS POST to this address.",
     tcp:
       "This should be a TCP port where the participating system will be listening on. IL will be sending the messages to this port."
   };
@@ -28,9 +30,9 @@ export const AddressCard = props => {
     {
       header: `${props.addressType} Address`,
       description:
-        props.addressType === "HTTP"
-          ? protocolDescriptions.http
-          : protocolDescriptions.tcp,
+        props.addressType === "TCP"
+          ? protocolDescriptions.tcp
+          : props.addressType === "HTTP" ? protocolDescriptions.http : protocolDescriptions.https,
       meta: `Last Updated On ${props.lastUpdated}`,
       extra,
       color: "teal",
