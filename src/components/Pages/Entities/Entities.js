@@ -164,6 +164,7 @@ export class Entities extends Component {
   };
 
   handleNewAddressSubmit = (evt, value) => {
+    const hasHttps = this.state.currentAddress.includes('https')
     const addressObj = {
       protocol: this.state.protocol,
       address: this.state.currentAddress.replace(
@@ -171,7 +172,8 @@ export class Entities extends Component {
         ""
       ),
       status: "ACTIVE",
-      EntityId: this.state.entity.id
+      EntityId: this.state.entity.id,
+      hasHttps: hasHttps
     };
     deleteAddress(this.state.entity.id)
       .then(address => saveAddress(addressObj))

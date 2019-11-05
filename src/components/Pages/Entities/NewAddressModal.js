@@ -9,8 +9,8 @@ export const NewAddressModal = props => {
     { key: "no", content: "Close", color: "red", triggerClose: true }
   ];
   const options = [
-    { key: "TCP", text: "TCP", value: "TCP" },
-    { key: "HTTP", text: "HTTP", value: "HTTP" }
+      { key: "TCP", text: "TCP", value: "TCP" },
+      { key: "HTTP", text: "HTTP", value: "HTTP" }
   ];
   return (
     <RibbonSection heading="System Address" color="orange">
