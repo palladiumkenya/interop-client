@@ -1,7 +1,8 @@
 import titleCase from "title-case";
 import axios from "axios";
 
-const IP_ADDRESS = window.location.href.split(":")[1].replace(/\/\//g, "");
+let IP_ADDRESS = window.location.href.split(":")[1].replace(/\/\//g, "");
+IP_ADDRESS = IP_ADDRESS.replace(/\/$/, "");
 const ROOT_URL = `http://${IP_ADDRESS}:3003/api`;
 
 const expiryTime = () => {
