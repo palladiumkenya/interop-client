@@ -3,7 +3,7 @@ import axios from "axios";
 
 let IP_ADDRESS = window.location.href.split(":")[1].replace(/\/\//g, "");
 IP_ADDRESS = IP_ADDRESS.replace(/\/$/, "");
-const ROOT_URL = `http://${IP_ADDRESS}:3003/api`;
+const ROOT_URL = `${location.protocol}://${IP_ADDRESS}:3003/api`;
 
 const expiryTime = () => {
   const currentTime = new Date();
