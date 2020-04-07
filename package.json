@@ -20,16 +20,25 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "script": "jest",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "jest ",
+    "test-react": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react-app": "^9.1.2",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-15": "^1.4.1",
+    "enzyme-to-json": "^3.4.4",
     "eslint": "4.19.1",
     "eslint-config-prettier": "2.9.0",
     "eslint-plugin-import": "2.10.0",
     "eslint-plugin-prettier": "2.6.0",
     "eslint-plugin-react": "7.7.0",
-    "prettier": "1.11.1"
+    "prettier": "1.11.1",
+    "react-test-renderer": "^15.5.3"
   }
 }
