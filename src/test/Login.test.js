@@ -27,7 +27,7 @@ describe('Login', () => {
        
     });
     it('is sibling to text inputs',()=>{
-        const wrapper2=shallow(<Form  className="login-form" />);
+        const wrapper2=mount(<Form  className="login-form" />);
         const wrapper =shallow(<Form.Field control= {Input} label="Username" />)
         console.log(wrapper.html());
         console.log(wrapper2.html());
