@@ -53,6 +53,7 @@ export const NewSettingsForm = props => {
               iconPosition="left"
               name="value"
               value={props.value}
+              type={props.description === 'DHIS2 Password' ? 'password' : 'text'}
               onChange={props.handleValueChange}
             />
           </Form.Group>
