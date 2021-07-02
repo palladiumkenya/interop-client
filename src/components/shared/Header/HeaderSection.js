@@ -6,7 +6,7 @@ export const HeaderSection = ({ facility }) => (
   <Container className="header-section">
     <Header as="h1" className="header-text">
       <img src={logo} className="App-logo" alt="logo" />
-      Interoperability Layer{" "}
+      Interoperability Layer{" - ver 4.0.0 "}
       {facility ? (
         <span className="facility-name">({facility}) </span>
       ) : (
